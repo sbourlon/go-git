@@ -495,6 +495,8 @@ type PlainOpenOptions struct {
 	// DetectDotGit defines whether parent directories should be
 	// walked until a .git directory or file is found.
 	DetectDotGit bool
+	// WorkTree as defined by --work-tree in the git CLI
+	WorkTree string
 }
 
 // Validate validates the fields and sets the default values.
