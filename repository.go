@@ -238,11 +238,15 @@ func PlainOpen(path string) (*Repository, error) {
 }
 
 // PlainOpenWithOptions opens a git repository from the given path with specific
-// options. See PlainOpen for more info.
+// options. See PlainOpen for more info. If option WorkTree is set, use it as the worktree
 func PlainOpenWithOptions(path string, o *PlainOpenOptions) (*Repository, error) {
 	dot, wt, err := dotGitToOSFilesystems(path, o.DetectDotGit)
 	if err != nil {
 		return nil, err
+	}
+
+	if o.WorkTree != "" {
+		wt = osfs.New(o.WorkTree)
 	}
 
 	if _, err := dot.Stat(""); err != nil {
