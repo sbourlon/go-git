@@ -54,6 +54,16 @@ func (s Status) String() string {
 	return buf.String()
 }
 
+// HasMergeConflict returns true if the status has merge conflicts, else false
+func (s Status) HasMergeConflict() bool {
+	for _, filestatus := range s {
+		if filestatus.HasMergeConflict() {
+			return true
+		}
+	}
+	return false
+}
+
 // FileStatus contains the status of a file in the worktree
 type FileStatus struct {
 	// Staging is the status of a file in the staging area
@@ -62,6 +72,17 @@ type FileStatus struct {
 	Worktree StatusCode
 	// Extra contains extra information, such as the previous name in a rename
 	Extra string
+}
+
+// HasMergeConflict returns true if the status has merge conflicts, else false
+func (f FileStatus) HasMergeConflict() bool {
+	if f.Worktree == UpdatedButUnmerged ||
+		f.Staging == UpdatedButUnmerged ||
+		(f.Staging == Added && f.Worktree == Added) ||
+		(f.Staging == Deleted && f.Worktree == Deleted) {
+		return true
+	}
+	return false
 }
 
 // StatusCode status code of a file in the Worktree
