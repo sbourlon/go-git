@@ -8,6 +8,7 @@ import (
 	"gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/format/index"
+	"gopkg.in/src-d/go-git.v4/plumbing/format/merge"
 	"gopkg.in/src-d/go-git.v4/plumbing/storer"
 	"gopkg.in/src-d/go-git.v4/storage"
 )
@@ -25,6 +26,7 @@ type Storage struct {
 	IndexStorage
 	ReferenceStorage
 	ModuleStorage
+	MergeStorage
 }
 
 // NewStorage returns a new Storage base on memory
@@ -41,6 +43,7 @@ func NewStorage() *Storage {
 			Tags:    make(map[plumbing.Hash]plumbing.EncodedObject),
 		},
 		ModuleStorage: make(ModuleStorage),
+		MergeStorage:  MergeStorage{},
 	}
 }
 
@@ -317,4 +320,28 @@ func (s ModuleStorage) Module(name string) (storage.Storer, error) {
 	s[name] = m
 
 	return m, nil
+}
+
+type MergeStorage struct {
+	Head plumbing.Hash
+	Mode merge.Mode
+	Msg  string
+}
+
+// MergeHead returns the hash of the merge
+// Not implemented
+func (m MergeStorage) MergeHead() plumbing.Hash {
+	return plumbing.ZeroHash
+}
+
+// MergeMode returns the mode of the merge, e.g. no-ff
+// Not implemented
+func (m MergeStorage) MergeMode() merge.Mode {
+	return merge.Default
+}
+
+// MergeMsg returns the message of the merge
+// Not implemented
+func (m MergeStorage) MergeMsg() string {
+	return ""
 }
