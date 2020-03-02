@@ -1595,3 +1595,8 @@ func (r *Repository) createNewObjectPack(cfg *RepackConfig) (h plumbing.Hash, er
 
 	return h, err
 }
+
+// IsMergeInProgress returns true is a merge is in progress, else false
+func (r *Repository) IsMergeInProgress() bool {
+	return r.Storer.MergeHead() != plumbing.ZeroHash
+}

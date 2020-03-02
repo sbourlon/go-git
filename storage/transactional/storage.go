@@ -27,6 +27,7 @@ type basic struct {
 	*IndexStorage
 	*ShallowStorage
 	*ConfigStorage
+	*MergeStorage
 }
 
 // packageWriter implements storer.PackfileWriter interface over
@@ -49,6 +50,7 @@ func NewStorage(base, temporal storage.Storer) Storage {
 		IndexStorage:     NewIndexStorage(base, temporal),
 		ShallowStorage:   NewShallowStorage(base, temporal),
 		ConfigStorage:    NewConfigStorage(base, temporal),
+		MergeStorage:     NewMergeStorage(base, temporal),
 	}
 
 	pw, ok := temporal.(storer.PackfileWriter)

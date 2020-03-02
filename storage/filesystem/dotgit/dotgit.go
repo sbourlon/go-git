@@ -14,6 +14,7 @@ import (
 
 	"gopkg.in/src-d/go-billy.v4/osfs"
 	"gopkg.in/src-d/go-git.v4/plumbing"
+	"gopkg.in/src-d/go-git.v4/plumbing/format/merge"
 	"gopkg.in/src-d/go-git.v4/storage"
 	"gopkg.in/src-d/go-git.v4/utils/ioutil"
 
@@ -30,6 +31,9 @@ const (
 	objectsPath    = "objects"
 	packPath       = "pack"
 	refsPath       = "refs"
+	mergeHeadPath  = "MERGE_HEAD"
+	mergeModePath  = "MERGE_MODE"
+	mergeMsgPath   = "MERGE_MSG"
 
 	tmpPackedRefsPrefix = "._packed-refs"
 
@@ -1092,6 +1096,56 @@ func (d *DotGit) Alternates() ([]*DotGit, error) {
 // Fs returns the underlying filesystem of the DotGit folder.
 func (d *DotGit) Fs() billy.Filesystem {
 	return d.fs
+}
+
+// MergeHead returns the hash of the merge head from the MERGE_HEAD file
+func (d *DotGit) MergeHead() (plumbing.Hash, error) {
+	file, err := d.localfs.Open(mergeHeadPath)
+	if err != nil {
+		return plumbing.ZeroHash, err
+	}
+
+	var value []byte
+	value, err = stdioutil.ReadAll(file)
+	if err != nil {
+		return plumbing.ZeroHash, err
+	}
+
+	return plumbing.NewHash(string(value)), nil
+}
+
+// MergeMode returns the merge mode given by the MERGE_MODE file
+func (d *DotGit) MergeMode() (merge.Mode, error) {
+	var mode merge.Mode
+	file, err := d.localfs.Open(mergeModePath)
+	if err != nil {
+		return mode, err
+	}
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		switch scanner.Text() {
+		case "no-ff":
+			mode = merge.NoFF
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return mode, err
+	}
+	return mode, nil
+}
+
+// MergeMsg returns the text given by the MERGE_MSG file
+func (d *DotGit) MergeMsg() (string, error) {
+	file, err := d.localfs.Open(mergeMsgPath)
+	if err != nil {
+		return "", err
+	}
+	var msg []byte
+	msg, err = stdioutil.ReadAll(file)
+	if err != nil {
+		return "", err
+	}
+	return string(msg), nil
 }
 
 func isHex(s string) bool {

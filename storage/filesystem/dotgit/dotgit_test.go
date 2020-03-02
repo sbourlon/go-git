@@ -11,6 +11,7 @@ import (
 
 	"gopkg.in/src-d/go-billy.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
+	"gopkg.in/src-d/go-git.v4/plumbing/format/merge"
 
 	. "gopkg.in/check.v1"
 	"gopkg.in/src-d/go-billy.v4/osfs"
@@ -810,6 +811,40 @@ func (s *SuiteDotGit) TestAlternates(c *C) {
 		expectedPath = filepath.Join(resolvedPath, "rep2", ".git")
 	}
 	c.Assert(dotgits[1].fs.Root(), Equals, expectedPath)
+}
+
+func (s *SuiteDotGit) TestMergeHead(c *C) {
+	fs := fixtures.Basic().ByTag("merge-conflict").One().DotGit()
+	dotgit := New(fs)
+
+	want := plumbing.NewHash("f72835db2eeacb70969ef2164c30a2613c40609c")
+	got, err := dotgit.MergeHead()
+	c.Assert(err, IsNil)
+	c.Assert(got, Equals, want)
+}
+
+func (s *SuiteDotGit) TestMergeMode(c *C) {
+	fs := fixtures.Basic().ByTag("merge-conflict").One().DotGit()
+	dotgit := New(fs)
+
+	want := merge.Default
+	got, err := dotgit.MergeMode()
+	c.Assert(err, IsNil)
+	c.Assert(got, Equals, want)
+}
+
+func (s *SuiteDotGit) TestMergeMsg(c *C) {
+	fs := fixtures.Basic().ByTag("merge-conflict").One().DotGit()
+	dotgit := New(fs)
+
+	want := "Merge branch 'master' of https://github.com/tcard/git-fixture\n\n"
+	want += "# Conflicts:\n"
+	want += "#\tgo/example.go\n"
+	want += "#\thaskal/haskal.hs\n"
+
+	got, err := dotgit.MergeMsg()
+	c.Assert(err, IsNil)
+	c.Assert(got, Equals, want)
 }
 
 type norwfs struct {

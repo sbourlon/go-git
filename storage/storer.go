@@ -18,6 +18,7 @@ type Storer interface {
 	storer.ReferenceStorer
 	storer.ShallowStorer
 	storer.IndexStorer
+	storer.MergeStorer
 	config.ConfigStorer
 	ModuleStorer
 }
